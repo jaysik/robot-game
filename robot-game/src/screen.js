@@ -31,15 +31,17 @@ export default class Screen {
 			canvas.height = this.winH;
 			canvas.width = this.winW;
 		} else if (this.winH < this.winW) {
-			if (this.maxW/this.winH === this.aspectRatio) {
+			// The window is wider than tall
+			if (this.maxW/this.winH === this.aspectRatio && this.maxW < this.winW) {
 				canvas.width = this.maxW;
 				canvas.height = this.winH;
 			} else {
 				// Cannot maintain aspect, so need to resize both dimensions
-				canvas.width = this.maxH * this.aspectRatio;
-				canvas.height = this.maxH;
+				canvas.width = this.winW;
+				canvas.height = this.winW * (1/this.aspectRatio);
 			}
 		}	else if (this.winW < this.winH) {
+			// The window is taller than wide
 			if (this.winW/this.maxH === this.aspectRatio) {
 				canvas.width = this.winW;
 				canvas.height = this.maxH;

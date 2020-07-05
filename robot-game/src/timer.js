@@ -1,3 +1,4 @@
+let raf;
 
 export default class Timer {
 	/*
@@ -16,10 +17,11 @@ export default class Timer {
 			heat:'0',
 			left: '5px'
 		});
+
 	}
 
 	startTimer() {
-		requestAnimationFrame(this.runLoop);
+		raf = window.requestAnimationFrame(this.runLoop);
 	}
 
 	runLoop = (timestamp = 0) => {
@@ -44,7 +46,7 @@ export default class Timer {
 		}
 
 		this.draw();
-		requestAnimationFrame(this.runLoop);
+		raf = window.requestAnimationFrame(this.runLoop);
 	};
 
 	panic() {
@@ -53,5 +55,8 @@ export default class Timer {
 		this.accumulatedTimeDiff = 0;
 	}
 
+	cancel() {
+		window.cancelAnimationFrame(raf)
+	}
 
 }

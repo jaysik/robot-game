@@ -26,13 +26,49 @@ test('check screen dimensions is less than the window dimensions 3840x2160', () 
 	const canvasLayers = ['background'];
 
 	let screen = new Screen(canvasLayers);
-	screen.winW = 1920;
-	screen.winH = 1080;
+	screen.winW = 3840;
+	screen.winH = 2160;
 
 	screen.setSize(screen.canvas.background);
 
 	expect(screen.canvas.background.height).toBeLessThanOrEqual(2160);
 	expect(screen.canvas.background.width).toBeLessThanOrEqual(3840);
+});
+
+test('check screen dimensions is less than the window dimensions 1000x1150', () => {
+	document.body.innerHTML = `
+		<canvas id="background"/>
+	`;
+
+	const canvasLayers = ['background'];
+
+	let screen = new Screen(canvasLayers);
+	screen.winW = 1000;
+	screen.winH = 1150;
+	screen.maxW = screen.winH * screen.aspectRatio;
+	screen.maxH = screen.winW * (1/screen.aspectRatio);
+
+	screen.setSize(screen.canvas.background);
+
+	expect(screen.canvas.background.width).toBeLessThanOrEqual(1000);
+	expect(screen.canvas.background.height).toBeLessThanOrEqual(1150);
+});
+
+test('check screen dimensions is less than the window dimensions 1150x1100', () => {
+	document.body.innerHTML = `
+		<canvas id="background"/>
+	`;
+
+	const canvasLayers = ['background'];
+
+	let screen = new Screen(canvasLayers);
+	screen.winW = 1150;
+	screen.winH = 1100;
+
+	screen.setSize(screen.canvas.background);
+
+	expect(screen.canvas.background.height).toBeLessThanOrEqual(1100);
+	expect(screen.canvas.background.width).toBeLessThanOrEqual(1150);
 });
 
 test('check screen dimensions is less than the window dimensions 500x1000', () => {
@@ -70,7 +106,7 @@ test('check screen dimensions is less than the window dimensions 2000x2000', () 
 	expect(screen.canvas.background.width).toBeLessThanOrEqual(2000);
 });
 
-test('Updates the element with new dimensions 1000x1000', () => {
+test('Updates the screen element with new dimensions 1000x1000', () => {
 	document.body.innerHTML = `
 		<canvas id="background"/>
 	`;
@@ -85,7 +121,7 @@ test('Updates the element with new dimensions 1000x1000', () => {
 	expect(document.getElementById('background')).toHaveProperty('height', screen.maxH);
 });
 
-test('Updates the element with new dimensions and maintains aspect ratio', () => {
+test('Updates the screen element with new dimensions and maintains aspect ratio', () => {
 	document.body.innerHTML = `
 		<canvas id="background"/>
 	`;
@@ -101,7 +137,7 @@ test('Updates the element with new dimensions and maintains aspect ratio', () =>
 	expect(element.width / element.height).toEqual(screen.aspectRatio);
 });
 
-test('Updates the element to odd window size (winW > winH) while maintains aspect ratio', () => {
+test('Updates the screen element to odd window size (winW > winH) while maintains aspect ratio', () => {
 	document.body.innerHTML = `
 		<canvas id="background"/>
 	`;
@@ -117,7 +153,7 @@ test('Updates the element to odd window size (winW > winH) while maintains aspec
 	expect(element.width / element.height).toEqual(screen.aspectRatio);
 });
 
-test('Updates the element to odd window size (winW < winH) while maintains aspect ratio', () => {
+test('Updates the screen element to odd window size (winW < winH) while maintains aspect ratio', () => {
 	document.body.innerHTML = `
 		<canvas id="background"/>
 	`;
@@ -152,6 +188,25 @@ test('Screen does size to different ratios of 7/3', () => {
 	const element = document.getElementById('background');
 
 	expect((element.width / element.height).toFixed(1)).toEqual(screen.aspectRatio.toFixed(1));
+});
+
+test('Screen does size to different ratios of 3/11', () => {
+	document.body.innerHTML = `
+		<canvas id="background"/>
+	`;
+
+	const canvasLayers = ['background'];
+	let screen = new Screen(canvasLayers);
+	screen.winW = 1000;
+	screen.winH = 1124;
+	screen.aspectRatio = 3/11;
+	screen.maxW = screen.winH * screen.aspectRatio;
+	screen.maxH = screen.winW * (1/screen.aspectRatio);
+	screen.setSize(screen.canvas.background);
+
+	const element = document.getElementById('background');
+
+	expect((element.width / element.height).toFixed(2)).toEqual(screen.aspectRatio.toFixed(2));
 });
 
 test('resizes multiple canvas layers', () => {

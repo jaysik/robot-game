@@ -1,63 +1,4 @@
-
-const PRESSED = 1;
-const RELEASED = 0;
-
-class KeyboardState {
-	constructor() {
-		// Holds the current state of a given key
-		this.keyStates = new Map();
-
-		// Holds the callback functions for a key code
-		this.keyMap = new Map();
-
-	}
-
-	addMapping(keyCode, callback) {
-		this.keyMap.set(keyCode, callback);
-	}
-
-	handleEvent(event) {
-		const {keyCode} = event;
-
-		if (!this.keyMap.has(keyCode)) {
-			// No key was found - It was not mapped.
-			return;
-		}
-
-		event.preventDefault(); // Block original key events so they can be mapped.
-
-		const keyState = event.type === 'keydown' ? PRESSED : RELEASED;
-
-		if (this.keyStates.get(keyCode) === keyState) {
-			// Found key
-			return;
-		}
-
-		this.keyStates.set(keyCode, keyState);
-
-		this.keyMap.get(keyCode)(keyState);
-	}
-
-	// Create Listener
-	listenTo(window) {
-		['keydown', 'keyup'].forEach(eventName => {
-			window.addEventListener(eventName, event => {
-				this.handleEvent(event);
-			});
-		})
-	}
-
-
-}
-
-function moveRight(x) {
-	x += this.velocity * frame;
-}
-
-document.addEventListener('keydown', (event) => {
-	console.log(event)
-});
-
+import Keyboard from './keyboardState.js';
 
 export default class Player {
 	constructor(canvas) {
@@ -65,7 +6,11 @@ export default class Player {
 		this.context = canvas.getContext('2d');
 		this.height = this.canvas.height / 18;
 		this.width = this.canvas.width / 30;
-		this.velocity = 0.2;
+		this.xVelocity = this.width * 0.007;
+		this.yVelocity = this.height * 0.03;
+		this.moveRight = false;
+		this.moveLeft = false;
+		this.jump = false;
 		this.startPos = {
 			x: 0,
 			y: this.height * 17
@@ -76,46 +21,66 @@ export default class Player {
 		};
 
 		// Initialize
-		// this.keyListener();
+		this.input = new Keyboard();
+		this.input.listenTo(window);
+		this.addKeys();
 
 	}
-
 
 	// Character box must be 60x64 for the aspect ratio.
 	draw() {
 		let sprite = new Image();
-		sprite.src = '../illustrations/robot-2.png';
+		sprite.src = '../../illustrations/robot-2.png';
 		this.context.drawImage(sprite, this.pos.x, this.pos.y, this.width, this.height)
 	}
-	//
-	// keyListener(key) {
-	// 	document.addEventListener('keyup', (event) => {
-	// 		if (event.key === key) {
-	// 			console.log('pressed ', key);
-	// 			return key
-	// 		}
-	// 	});
-	// }
-	//
-	//
-	// moveRight(frame) {
-	// 	// console.log(this.keyListener('d'));
-	// 	// if (this.keyListener('d') === 'd') {
-	// 	// 	this.pos.x += this.velocity * frame
-	// 	// }
-	// }
 
-	move(frame) {
+	addKeys() {
+		this.input.addMapping('d', keyState => {
+			if (keyState) {
+				this.moveRight = true;
+			} else {
+				this.moveRight = false;
+			}
+		});
+
+		this.input.addMapping('a', keyState => {
+			keyState ? this.moveLeft = true : this.moveLeft = false;
+		});
+
+		this.input.addMapping('w', keyState => {
+			if (keyState) {
+				this.jump = true;
+			} else {
+				this.jump = false;
+			}
+		})
+	}
+
+	jumpPhysics () {
+		let duration = 0.5;
+		let velocity = 200;
+		let engageTime = 0;
 
 
-		this.moveRight(frame)
+	}
 
+	position(frame) {
+		let gravity = 0.0003* this.height;
 
-		// if (x + charVelocity * frame > canvas.width - charWidth) {
-		// 	x = (charWidth/30) * 2;
-		// } else {
-		// 	x += charVelocity * frame;
-		// }
+		if (this.moveRight) {
+			this.pos.x += (this.xVelocity * frame);
+		}
+		if (this.moveLeft) {
+			this.pos.x -= (this.xVelocity * frame);
+		}
+		if (this.jump) {
+			this.pos.y -= (this.yVelocity * frame);
+			this.yVelocity -= gravity;
+		} else {
+			this.pos.y = this.startPos.y;
+			this.yVelocity = this.height * 0.01;
+		}
+
 	}
 
 	clear() {
